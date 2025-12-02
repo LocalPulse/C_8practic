@@ -2,14 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "console.h"
 
 /* [[ Constants ]] */
 #define HIGHLIGHT "\033[7m"
 #define RESET "\033[0m"
-
-/* [[ Functions Prototypes ]] */
-bool _clearConsole();
-void CreateMenu(char **strings);
 
 /*[[ Functions ]]*/
 
@@ -48,26 +45,52 @@ bool _clearConsole() {
  *      char *menu_items[] = {"Start", "Options", "Exit"};
  *      CreateMenu(menu_items);
  */
-void CreateMenu(char **strings) {
+int CreateMenu(char **strings) {
     bool resultClear = _clearConsole();
-    printf("Clear console result: %s\n", resultClear ? "Success" : "Failed");
+    // Очистка консоли выполнена
 
     int count = 0;
     while(strings[count] != NULL) count++; //Высчитываем сколько строк в массиве
+    if (count <= 0) return -1;
 
-    printf("\n▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n");
-    printf("█            ГЛАВНОЕ МЕНЮ            █\n");
-    printf("▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀\n\n");
+    char buf[64]; //Выделяем память под input
+
+    printf("\n===========================================\n");
+    printf("|               Main Menu               |\n");
+    printf("===========================================\n\n");
 
     for (int i = 0; i < count; i++) {
-        if(i == 0) {
-            printf("  ▶ %s%2d. %s%s\n", HIGHLIGHT, i + 1, strings[i], RESET);
-        } else {
-            printf("    %2d. %s\n", i + 1, strings[i]);
-        }
-
-        printf("\n──────────────────────────────────────────\n");
-        printf("[↑↓] - Навигация   [Enter] - Выбор   [0] - Выход\n");
-        printf("──────────────────────────────────────────\n");
+        printf("[%d] %s\n", i+1, strings[i]);
     }
+
+    printf("\nEnter option: ");
+    if(fgets(buf, sizeof buf, stdin) != NULL) {
+       int opt;
+       if (sscanf(buf, "%d", &opt) == 1){
+           return opt;
+       } else {
+           printf("Invalid input\n");
+       }
+    }
+    return -1;
+}
+
+/*
+ * @brief Вывод текста с паузой
+ * Выводит текст и ждёт нажатия Enter
+ *
+ * @param text Текст для вывода
+ */
+void PrintText(const char *text) {
+    printf("%s\n", text);
+}
+
+/*
+ * @brief Ожидание нажатия Enter
+ * Очищает буфер ввода и ждёт нажатия Enter
+ */
+void WaitForEnter() {
+    printf("\nPress Enter to continue...");
+    char ch;
+    while((ch = getchar()) != '\n' && ch != EOF);
 }

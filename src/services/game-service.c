@@ -16,16 +16,16 @@ void ShowIntro() {
     printf("|        TAJNA STAROGO MANUSKRIPTA                 |\n");
     printf("|                                                   |\n");
     printf("=======================================================\n\n");
-    
+
     printf("Вы - начинающий повар, ищущий легендарный рецепт\n");
     printf("древнего блюда, который был утерян много лет назад.\n\n");
     printf("Слухи гласят, что рецепт хранится в заброшенном особняке\n");
     printf("известного кулинара. Вы решили рискнуть и отправиться\n");
     printf("на поиски этого сокровища...\n\n");
-    
+
     printf("Ваша цель: найти все необходимые предметы и разгадать\n");
     printf("тайну древнего рецепта!\n\n");
-    
+
     WaitForEnter();
 }
 
@@ -47,7 +47,7 @@ void ShowWinScreen() {
     printf("|          POZDRAVLYAEM! VY POBEDILI!              |\n");
     printf("|                                                   |\n");
     printf("=======================================================\n\n");
-    
+
     printf("Вы нашли древний манускрипт с секретным рецептом!\n\n");
     printf("В манускрипте записан рецепт легендарного блюда,\n");
     printf("которое было утеряно много лет назад.\n\n");
@@ -57,7 +57,7 @@ void ShowWinScreen() {
     printf("=======================================================\n");
     printf("|      Spasibo za igru! Do novyh vstrech!            |\n");
     printf("=======================================================\n\n");
-    
+
     WaitForEnter();
 }
 
@@ -66,20 +66,20 @@ void ShowWinScreen() {
  */
 void GameLoop() {
     int choice;
-    
+
     while (!IsGameWon() && !IsGameOver()) {
         DisplayLocation();
-        
+
         // Проверка условий победы
         if (CheckWinCondition()) {
             break;
         }
-        
+
         Location *loc = GetCurrentLocation();
-        
+
         printf("\n[0] Инвентарь\n");
         printf("Выберите действие (0-%d): ", loc->actionCount);
-        
+
         char buf[64];
         if (fgets(buf, sizeof buf, stdin) != NULL) {
             if (sscanf(buf, "%d", &choice) == 1) {
@@ -97,7 +97,7 @@ void GameLoop() {
             }
         }
     }
-    
+
     if (IsGameWon()) {
         ShowWinScreen();
     }
@@ -111,11 +111,10 @@ void GameInit() {
         printf("Игра уже инициализирована.\n");
         return;
     }
-    
     isGame = true;
-    
+
     int menuChoice = ShowMainMenu();
-    
+
     if (menuChoice == 1) {
         ShowIntro();
         InitGameModel();

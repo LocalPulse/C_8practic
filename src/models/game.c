@@ -1,8 +1,21 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "game.h"
 #include "../utils/console.h"
+
+static void CopyStringSafe(char *dest, size_t destSize, const char *src) {
+    if (dest == NULL || destSize == 0) {
+        return;
+    }
+    if (src == NULL) {
+        dest[0] = '\0';
+        return;
+    }
+    strncpy(dest, src, destSize - 1);
+    dest[destSize - 1] = '\0';
+}
 
 /* [[ Глобальное состояние игры ]] */
 static GameState game;
@@ -63,8 +76,8 @@ void AddToInventory(Item *item) {
         return;
     }
     
-    strcpy(game.inventory[game.inventoryCount].name, item->name);
-    strcpy(game.inventory[game.inventoryCount].description, item->description);
+    CopyStringSafe(game.inventory[game.inventoryCount].name, sizeof game.inventory[game.inventoryCount].name, item->name);
+    CopyStringSafe(game.inventory[game.inventoryCount].description, sizeof game.inventory[game.inventoryCount].description, item->description);
     game.inventory[game.inventoryCount].isCollected = true;
     game.inventoryCount++;
     printf("✓ Добавлено в инвентарь: %s\n", item->name);
@@ -234,8 +247,8 @@ static Item* CreateItem(const char *name, const char *description) {
     
     if (itemIndex >= 20) return NULL;
     
-    strcpy(items[itemIndex].name, name);
-    strcpy(items[itemIndex].description, description);
+    CopyStringSafe(items[itemIndex].name, sizeof items[itemIndex].name, name);
+    CopyStringSafe(items[itemIndex].description, sizeof items[itemIndex].description, description);
     items[itemIndex].isCollected = false;
     
     return &items[itemIndex++];
@@ -249,72 +262,72 @@ static void InitializeLocations() {
     // КУХНЯ
     Location *kitchen = &game.locations[LOCATION_KITCHEN];
     kitchen->id = LOCATION_KITCHEN;
-    strcpy(kitchen->name, "Кухня");
-    strcpy(kitchen->description, "Старая кухня, покрытая пылью и паутиной. Стол завален остатками давно испорченной еды. На полках стоят пустые банки. Странный запах старого дерева висит в воздухе.");
+    CopyStringSafe(kitchen->name, sizeof kitchen->name, "Кухня");
+    CopyStringSafe(kitchen->description, sizeof kitchen->description, "Старая кухня, покрытая пылью и паутиной. Стол завален остатками давно испорченной еды. На полках стоят пустые банки. Странный запах старого дерева висит в воздухе.");
     kitchen->itemCount = 1;
     kitchen->items[0] = *CreateItem("Газета", "Старая газета с вырезкой о пропавшем поваре");
     kitchen->items[0].isCollected = false;
     kitchen->actionCount = 2;
     
-    strcpy(kitchen->actions[0].text, "Идти в столовую");
+    CopyStringSafe(kitchen->actions[0].text, sizeof kitchen->actions[0].text, "Идти в столовую");
     kitchen->actions[0].available = true;
     kitchen->actions[0].targetLocation = LOCATION_DINING_ROOM;
     kitchen->actions[0].requiresItem = false;
-    strcpy(kitchen->actions[0].resultText, "Вы выходите из кухни в столовую.");
+    CopyStringSafe(kitchen->actions[0].resultText, sizeof kitchen->actions[0].resultText, "Вы выходите из кухни в столовую.");
     
-    strcpy(kitchen->actions[1].text, "Взять газету");
+    CopyStringSafe(kitchen->actions[1].text, sizeof kitchen->actions[1].text, "Взять газету");
     kitchen->actions[1].available = true;
     kitchen->actions[1].targetLocation = -1;
     kitchen->actions[1].requiresItem = false;
-    strcpy(kitchen->actions[1].resultText, "Вы подобрали газету. В ней написано о таинственном рецепте.");
+    CopyStringSafe(kitchen->actions[1].resultText, sizeof kitchen->actions[1].resultText, "Вы подобрали газету. В ней написано о таинственном рецепте.");
     kitchen->actions[1].givesItem = &kitchen->items[0];
     
     // СТОЛОВАЯ
     Location *dining = &game.locations[LOCATION_DINING_ROOM];
     dining->id = LOCATION_DINING_ROOM;
-    strcpy(dining->name, "Столовая");
-    strcpy(dining->description, "Просторная столовая с массивным дубовым столом посередине. На стенах висят портреты предков, которые смотрят на вас загадочными взглядами. На стене висит старая карта особняка.");
+    CopyStringSafe(dining->name, sizeof dining->name, "Столовая");
+    CopyStringSafe(dining->description, sizeof dining->description, "Просторная столовая с массивным дубовым столом посередине. На стенах висят портреты предков, которые смотрят на вас загадочными взглядами. На стене висит старая карта особняка.");
     dining->itemCount = 1;
     dining->items[0] = *CreateItem("Карта", "Старая карта особняка с отметками");
     dining->items[0].isCollected = false;
     dining->actionCount = 5;
     
-    strcpy(dining->actions[0].text, "Идти в библиотеку");
+    CopyStringSafe(dining->actions[0].text, sizeof dining->actions[0].text, "Идти в библиотеку");
     dining->actions[0].available = true;
     dining->actions[0].targetLocation = LOCATION_LIBRARY;
     dining->actions[0].requiresItem = false;
-    strcpy(dining->actions[0].resultText, "Вы направляетесь в библиотеку.");
+    CopyStringSafe(dining->actions[0].resultText, sizeof dining->actions[0].resultText, "Вы направляетесь в библиотеку.");
     
-    strcpy(dining->actions[1].text, "Вернуться на кухню");
+    CopyStringSafe(dining->actions[1].text, sizeof dining->actions[1].text, "Вернуться на кухню");
     dining->actions[1].available = true;
     dining->actions[1].targetLocation = LOCATION_KITCHEN;
     dining->actions[1].requiresItem = false;
-    strcpy(dining->actions[1].resultText, "Вы возвращаетесь на кухню.");
+    CopyStringSafe(dining->actions[1].resultText, sizeof dining->actions[1].resultText, "Вы возвращаетесь на кухню.");
     
-    strcpy(dining->actions[2].text, "Идти в подвал");
+    CopyStringSafe(dining->actions[2].text, sizeof dining->actions[2].text, "Идти в подвал");
     dining->actions[2].available = true;
     dining->actions[2].targetLocation = LOCATION_BASEMENT;
     dining->actions[2].requiresItem = false;
-    strcpy(dining->actions[2].resultText, "Вы спускаетесь в тёмный подвал.");
+    CopyStringSafe(dining->actions[2].resultText, sizeof dining->actions[2].resultText, "Вы спускаетесь в тёмный подвал.");
     
-    strcpy(dining->actions[3].text, "Выйти в сад");
+    CopyStringSafe(dining->actions[3].text, sizeof dining->actions[3].text, "Выйти в сад");
     dining->actions[3].available = true;
     dining->actions[3].targetLocation = LOCATION_GARDEN;
     dining->actions[3].requiresItem = false;
-    strcpy(dining->actions[3].resultText, "Вы выходите через заднюю дверь в сад.");
+    CopyStringSafe(dining->actions[3].resultText, sizeof dining->actions[3].resultText, "Вы выходите через заднюю дверь в сад.");
     
-    strcpy(dining->actions[4].text, "Взять карту");
+    CopyStringSafe(dining->actions[4].text, sizeof dining->actions[4].text, "Взять карту");
     dining->actions[4].available = true;
     dining->actions[4].targetLocation = -1;
     dining->actions[4].requiresItem = false;
-    strcpy(dining->actions[4].resultText, "Карта добавлена в инвентарь.");
+    CopyStringSafe(dining->actions[4].resultText, sizeof dining->actions[4].resultText, "Карта добавлена в инвентарь.");
     dining->actions[4].givesItem = &dining->items[0];
     
     // БИБЛИОТЕКА
     Location *library = &game.locations[LOCATION_LIBRARY];
     library->id = LOCATION_LIBRARY;
-    strcpy(library->name, "Библиотека");
-    strcpy(library->description, "Библиотека с высокими стеллажами до потолка, полными старых томов. В углу стоит деревянная лестница, ведущая наверх. На столе лежит открытая книга рецептов, а рядом блестит бронзовый ключ.");
+    CopyStringSafe(library->name, sizeof library->name, "Библиотека");
+    CopyStringSafe(library->description, sizeof library->description, "Библиотека с высокими стеллажами до потолка, полными старых томов. В углу стоит деревянная лестница, ведущая наверх. На столе лежит открытая книга рецептов, а рядом блестит бронзовый ключ.");
     library->itemCount = 2;
     library->items[0] = *CreateItem("Ключ от чердака", "Бронзовый ключ с гравировкой");
     library->items[1] = *CreateItem("Книга рецептов", "Старая книга с кулинарными рецептами");
@@ -322,104 +335,104 @@ static void InitializeLocations() {
     library->items[1].isCollected = false;
     library->actionCount = 4;
     
-    strcpy(library->actions[0].text, "Вернуться в столовую");
+    CopyStringSafe(library->actions[0].text, sizeof library->actions[0].text, "Вернуться в столовую");
     library->actions[0].available = true;
     library->actions[0].targetLocation = LOCATION_DINING_ROOM;
     library->actions[0].requiresItem = false;
-    strcpy(library->actions[0].resultText, "Вы возвращаетесь в столовую.");
+    CopyStringSafe(library->actions[0].resultText, sizeof library->actions[0].resultText, "Вы возвращаетесь в столовую.");
     
-    strcpy(library->actions[1].text, "Взять ключ");
+    CopyStringSafe(library->actions[1].text, sizeof library->actions[1].text, "Взять ключ");
     library->actions[1].available = true;
     library->actions[1].targetLocation = -1;
     library->actions[1].requiresItem = false;
-    strcpy(library->actions[1].resultText, "Вы взяли ключ от чердака.");
+    CopyStringSafe(library->actions[1].resultText, sizeof library->actions[1].resultText, "Вы взяли ключ от чердака.");
     library->actions[1].givesItem = &library->items[0];
     
-    strcpy(library->actions[2].text, "Прочитать книгу рецептов");
+    CopyStringSafe(library->actions[2].text, sizeof library->actions[2].text, "Прочитать книгу рецептов");
     library->actions[2].available = true;
     library->actions[2].targetLocation = -1;
     library->actions[2].requiresItem = false;
-    strcpy(library->actions[2].resultText, "В книге упоминается секретный ингредиент, хранящийся в подвале.");
+    CopyStringSafe(library->actions[2].resultText, sizeof library->actions[2].resultText, "В книге упоминается секретный ингредиент, хранящийся в подвале.");
     
-    strcpy(library->actions[3].text, "Подняться на чердак");
+    CopyStringSafe(library->actions[3].text, sizeof library->actions[3].text, "Подняться на чердак");
     library->actions[3].available = true;
     library->actions[3].targetLocation = LOCATION_ATTIC;
     library->actions[3].requiresItem = false;
-    strcpy(library->actions[3].resultText, "Вы поднимаетесь по лестнице на чердак.");
+    CopyStringSafe(library->actions[3].resultText, sizeof library->actions[3].resultText, "Вы поднимаетесь по лестнице на чердак.");
     
     // ПОДВАЛ
     Location *basement = &game.locations[LOCATION_BASEMENT];
     basement->id = LOCATION_BASEMENT;
-    strcpy(basement->name, "Подвал");
-    strcpy(basement->description, "Тёмный и сырой подвал с низким потолком. Влажный воздух заставляет вас кашлять. На полках стоят банки с консервами, покрытые толстым слоем пыли. В углу стоит старый деревянный сундук.");
+    CopyStringSafe(basement->name, sizeof basement->name, "Подвал");
+    CopyStringSafe(basement->description, sizeof basement->description, "Тёмный и сырой подвал с низким потолком. Влажный воздух заставляет вас кашлять. На полках стоят банки с консервами, покрытые толстым слоем пыли. В углу стоит старый деревянный сундук.");
     basement->itemCount = 1;
     basement->items[0] = *CreateItem("Старый ключ", "Ржавый железный ключ");
     basement->items[0].isCollected = false;
     basement->actionCount = 3;
     
-    strcpy(basement->actions[0].text, "Вернуться в столовую");
+    CopyStringSafe(basement->actions[0].text, sizeof basement->actions[0].text, "Вернуться в столовую");
     basement->actions[0].available = true;
     basement->actions[0].targetLocation = LOCATION_DINING_ROOM;
     basement->actions[0].requiresItem = false;
-    strcpy(basement->actions[0].resultText, "Вы поднимаетесь обратно в столовую.");
+    CopyStringSafe(basement->actions[0].resultText, sizeof basement->actions[0].resultText, "Вы поднимаетесь обратно в столовую.");
     
-    strcpy(basement->actions[1].text, "Открыть сундук");
+    CopyStringSafe(basement->actions[1].text, sizeof basement->actions[1].text, "Открыть сундук");
     basement->actions[1].available = true;
     basement->actions[1].targetLocation = -1;
     basement->actions[1].requiresItem = false;
-    strcpy(basement->actions[1].resultText, "Сундук открыт! Внутри вы находите старый ключ.");
+    CopyStringSafe(basement->actions[1].resultText, sizeof basement->actions[1].resultText, "Сундук открыт! Внутри вы находите старый ключ.");
     basement->actions[1].givesItem = &basement->items[0];
     
-    strcpy(basement->actions[2].text, "Осмотреть банки");
+    CopyStringSafe(basement->actions[2].text, sizeof basement->actions[2].text, "Осмотреть банки");
     basement->actions[2].available = true;
     basement->actions[2].targetLocation = -1;
     basement->actions[2].requiresItem = false;
-    strcpy(basement->actions[2].resultText, "Все банки пусты, кроме одной с загадочной этикеткой.");
+    CopyStringSafe(basement->actions[2].resultText, sizeof basement->actions[2].resultText, "Все банки пусты, кроме одной с загадочной этикеткой.");
     
     // ЧЕРДАК
     Location *attic = &game.locations[LOCATION_ATTIC];
     attic->id = LOCATION_ATTIC;
-    strcpy(attic->name, "Чердак");
-    strcpy(attic->description, "Пыльный чердак, заваленный древними вещами и сундуками. Сквозь пыльные окна пробивается тусклый свет. В центре стоит старый письменный стол, на котором лежит древний манускрипт с восковыми печатями.");
+    CopyStringSafe(attic->name, sizeof attic->name, "Чердак");
+    CopyStringSafe(attic->description, sizeof attic->description, "Пыльный чердак, заваленный древними вещами и сундуками. Сквозь пыльные окна пробивается тусклый свет. В центре стоит старый письменный стол, на котором лежит древний манускрипт с восковыми печатями.");
     attic->itemCount = 1;
     attic->items[0] = *CreateItem("Древний манускрипт", "Старинная рукопись с секретным рецептом");
     attic->items[0].isCollected = false;
     attic->actionCount = 2;
     
-    strcpy(attic->actions[0].text, "Взять манускрипт");
+    CopyStringSafe(attic->actions[0].text, sizeof attic->actions[0].text, "Взять манускрипт");
     attic->actions[0].available = true;
     attic->actions[0].targetLocation = -1;
     attic->actions[0].requiresItem = false;
-    strcpy(attic->actions[0].resultText, "Вы взяли древний манускрипт! В нём описан секретный рецепт!");
+    CopyStringSafe(attic->actions[0].resultText, sizeof attic->actions[0].resultText, "Вы взяли древний манускрипт! В нём описан секретный рецепт!");
     attic->actions[0].givesItem = &attic->items[0];
     
-    strcpy(attic->actions[1].text, "Вернуться в библиотеку");
+    CopyStringSafe(attic->actions[1].text, sizeof attic->actions[1].text, "Вернуться в библиотеку");
     attic->actions[1].available = true;
     attic->actions[1].targetLocation = LOCATION_LIBRARY;
     attic->actions[1].requiresItem = false;
-    strcpy(attic->actions[1].resultText, "Вы спускаетесь обратно в библиотеку.");
+    CopyStringSafe(attic->actions[1].resultText, sizeof attic->actions[1].resultText, "Вы спускаетесь обратно в библиотеку.");
     
     // САД
     Location *garden = &game.locations[LOCATION_GARDEN];
     garden->id = LOCATION_GARDEN;
-    strcpy(garden->name, "Сад");
-    strcpy(garden->description, "Заброшенный сад с заросшими дорожками и буйной растительностью. В центре стоит полуразрушенная беседка. Рядом растут редкие травы, которые когда-то использовались в кулинарии. В беседке лежит старая восковая свеча.");
+    CopyStringSafe(garden->name, sizeof garden->name, "Сад");
+    CopyStringSafe(garden->description, sizeof garden->description, "Заброшенный сад с заросшими дорожками и буйной растительностью. В центре стоит полуразрушенная беседка. Рядом растут редкие травы, которые когда-то использовались в кулинарии. В беседке лежит старая восковая свеча.");
     garden->itemCount = 1;
     garden->items[0] = *CreateItem("Восковая свеча", "Старая восковая свеча");
     garden->items[0].isCollected = false;
     garden->actionCount = 2;
     
-    strcpy(garden->actions[0].text, "Взять свечу");
+    CopyStringSafe(garden->actions[0].text, sizeof garden->actions[0].text, "Взять свечу");
     garden->actions[0].available = true;
     garden->actions[0].targetLocation = -1;
     garden->actions[0].requiresItem = false;
-    strcpy(garden->actions[0].resultText, "Вы взяли восковую свечу из беседки.");
+    CopyStringSafe(garden->actions[0].resultText, sizeof garden->actions[0].resultText, "Вы взяли восковую свечу из беседки.");
     garden->actions[0].givesItem = &garden->items[0];
     
-    strcpy(garden->actions[1].text, "Вернуться в столовую");
+    CopyStringSafe(garden->actions[1].text, sizeof garden->actions[1].text, "Вернуться в столовую");
     garden->actions[1].available = true;
     garden->actions[1].targetLocation = LOCATION_DINING_ROOM;
     garden->actions[1].requiresItem = false;
-    strcpy(garden->actions[1].resultText, "Вы возвращаетесь в особняк.");
+    CopyStringSafe(garden->actions[1].resultText, sizeof garden->actions[1].resultText, "Вы возвращаетесь в особняк.");
 }
 

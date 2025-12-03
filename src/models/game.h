@@ -3,10 +3,10 @@
 
 #include <stdbool.h>
 
-#define MAX_INVENTORY_SIZE 10
-#define MAX_LOCATION_NAME 64
-#define MAX_ITEM_NAME 32
-#define MAX_DESCRIPTION 256
+#define MAX_INVENTORY_SIZE 16
+#define MAX_LOCATION_NAME 128
+#define MAX_ITEM_NAME 64
+#define MAX_DESCRIPTION 512
 #define MAX_ACTIONS 6
 
 /* [[ Типы локаций ]] */
